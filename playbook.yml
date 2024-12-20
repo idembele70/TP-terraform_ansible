@@ -1,0 +1,73 @@
+- name: Playbook
+  hosts: all
+  remote_user: root
+  tasks:
+    - name: Installation de iptables
+      ansible.builtin.apt:
+        name: iptables
+        state: present
+
+    - name: Accepte les connexions SSH
+      ansible.builtin.iptables:
+        chain: INPUT
+        protocol: tcp
+        destination_port: 22
+        source: 172.17.153.253/20
+        jump: ACCEPT
+
+    - name: Bloque ICMP
+      ansible.builtin.iptables:
+        chain: OUTPUT
+        protocol: ICMP
+        jump: DROP
+
+    - name: Accepte ICMP input
+      ansible.builtin.iptables:
+        chain: INPUT
+        protocol: ICMP
+        jump: ACCEPT
+
+    - name: Autorise les connexions déjà établies
+      ansible.builtin.iptables:
+        chain: INPUT
+        ctstate: ESTABLISHED,RELATED
+        jump: ACCEPT
+
+    - name: Installation de iptables-persistent
+      ansible.builtin.apt:
+        name: iptables-persistent
+        state: present
+
+    - name: Ajout des règles en dur
+      ansible.builtin.shell:
+        cmd: iptables-save > /etc/iptables/rules.v4
+
+    - name: Installation de UFW
+      ansible.builtin.apt:
+        name: ufw
+        state: present
+
+    - name: Installation de Fail2Ban
+      ansible.builtin.apt:
+        name: fail2ban
+        state: present
+
+    - name: Installation de RKHunter
+      ansible.builtin.apt:
+        name: rkhunter
+        state: present
+
+    - name: Installation de Lynis
+      ansible.builtin.apt:
+        name: lynis
+        state: present
+
+    - name: Installation de PortSentry
+      ansible.builtin.apt:
+        name: portsentry
+        state: present
+
+    - name: Installation de Snort
+      ansible.builtin.apt:
+        name: snort
+        state: present
